@@ -14,6 +14,8 @@ El flujo `.github/workflows/pages.yml` publica automaticamente al subir a `main`
 
 Pruebas de navegador: generar el DOCX de prueba con `powershell -File tests/create-fixture.ps1` y abrir `/tests/browser.html` en el servidor local. Debe mostrar PASS para texto, tablas, secciones, descarga e importacion PDF/DOCX.
 
+En Windows con Chrome instalado, `tests/run-browser.ps1` ejecuta las pruebas y verifica el ancho movil usando el servidor local en el puerto 8087. El parametro `-SiteUrl https://chachanito.github.io/justificador_vida/` repite las pruebas sobre la aplicacion publicada con documentos sinteticos. Las capturas quedan en `tmp/`, fuera de Git.
+
 Los archivos PHP originales siguen disponibles para integracion en un ERP, como se describe a continuacion. `MANIFIESTO.json` corresponde a la exportacion original, no a las modificaciones de la version web.
 
 Paquete del modulo PHP Justificador Vida y sus motores compartidos de texto y tablas. Incluye el estado actual del modulo: texto de 75 caracteres, tablas Excel/CSV, numeracion de hasta cuatro caracteres en modo Listado, importacion PDF/DOCX, copia, descarga TXT y documento compuesto por secciones reordenables. Conserva los espacios entre parrafos y secciones.
@@ -58,7 +60,7 @@ La vista carga `justificador_tablas.css` automaticamente. Para la pagina indepen
 - PDF escaneado sin capa de texto requiere OCR externo; este lector no hace OCR.
 - Word debe ser `.docx`; convertir los archivos `.doc` antes de importarlos.
 - Se extrae texto de PDF y Word, no se conserva su maquetacion original.
-- Publicar el codigo en GitHub no ejecuta PHP/Python. GitHub Pages solo no sirve para la importacion PDF/Word; se necesita un servidor con estos interpretes.
+- GitHub Pages no ejecuta PHP/Python. La version original del ERP necesita un servidor con estos interpretes; la version independiente `index.html` usa lectores JavaScript para importar PDF/Word en GitHub Pages.
 
 ## Publicacion
 

@@ -1,3 +1,4 @@
+param([string]$SiteUrl = 'http://127.0.0.1:8087/')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot
 $profilePath = Join-Path $projectRoot 'tmp/chrome-cdp'
@@ -41,8 +42,27 @@ try {
  $shot = Send-Cdp 'Page.captureScreenshot' @{format='png';captureBeyondViewport=$true}
  [IO.File]::WriteAllBytes((Join-Path $projectRoot 'tmp/browser-test.png'), [Convert]::FromBase64String($shot.data))
  if ($text -notmatch '^PASS') { throw 'Las pruebas no terminaron correctamente.' }
- $null = Send-Cdp 'Page.navigate' @{url='http://127.0.0.1:8087/'}
+ $null = Send-Cdp 'Page.navigate' @{url=$SiteUrl}
  Start-Sleep -Milliseconds 700
+ if ($SiteUrl -like 'https://*') {
+  for ($attempt=0; $attempt -lt 30; $attempt++) {
+   $ready = Send-Cdp 'Runtime.evaluate' @{expression='!!globalThis.JustificadorDocumento && !!globalThis.XLSX && document.readyState === "complete"';returnByValue=$true}
+   if ($ready.result.value) { break }
+   Start-Sleep -Milliseconds 500
+  }
+  if (-not $ready.result.value) { throw 'La aplicación publicada no terminó de cargar.' }
+  $testHtml = Get-Content (Join-Path $PSScriptRoot 'browser.html') -Raw -Encoding UTF8
+  $testJs = [regex]::Match($testHtml, '<script>([\s\S]*)</script>').Groups[1].Value
+  $testJs = $testJs.Replace("document.querySelector('iframe').addEventListener('load', async () => {", '(async () => {')
+  $testJs = $testJs.Replace("const output = document.getElementById('results'), win = document.querySelector('iframe').contentWindow, doc = win.document;", "const output = document.createElement('pre'), win = window, doc = document; output.id='results'; document.body.prepend(output);")
+  $fixture = [Convert]::ToBase64String([IO.File]::ReadAllBytes((Join-Path $PSScriptRoot 'sample.docx')))
+  $testJs = $testJs.Replace("await win.fetch('tests/sample.docx').then(r=>r.arrayBuffer())", "Uint8Array.from(atob('$fixture'), c=>c.charCodeAt(0)).buffer")
+  $testJs = [regex]::Replace($testJs, '\}\);\s*$', '})();')
+  $null = Send-Cdp 'Runtime.evaluate' @{expression=$testJs;awaitPromise=$true;returnByValue=$true}
+  $live = Send-Cdp 'Runtime.evaluate' @{expression='document.getElementById("results").textContent';returnByValue=$true}
+  Write-Output ('PUBLICADO: ' + $live.result.value)
+  if ($live.result.value -notmatch '^PASS') { throw 'Fallaron las pruebas del sitio publicado.' }
+ }
  $null = Send-Cdp 'Emulation.setDeviceMetricsOverride' @{width=390;height=844;deviceScaleFactor=1;mobile=$true}
  Start-Sleep -Milliseconds 300
  $mobile = Send-Cdp 'Runtime.evaluate' @{expression='document.documentElement.scrollWidth <= innerWidth';returnByValue=$true}
