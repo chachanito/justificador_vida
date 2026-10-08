@@ -70,6 +70,14 @@ try {
  $shot = Send-Cdp 'Page.captureScreenshot' @{format='png';captureBeyondViewport=$true}
  [IO.File]::WriteAllBytes((Join-Path $projectRoot 'tmp/mobile.png'), [Convert]::FromBase64String($shot.data))
  Write-Output 'PASS: diseño móvil sin desbordamiento horizontal'
+ $null = Send-Cdp 'Runtime.evaluate' @{expression='document.getElementById("theme-select").value="dark";document.getElementById("theme-select").dispatchEvent(new Event("change"))'}
+ $null = Send-Cdp 'Page.reload' @{}
+ Start-Sleep -Milliseconds 700
+ $restored = Send-Cdp 'Runtime.evaluate' @{expression='document.documentElement.dataset.theme === "dark" && document.getElementById("theme-select").value === "dark"';returnByValue=$true}
+ if (-not $restored.result.value) { throw 'No se restauró el tema después de recargar.' }
+ $shot = Send-Cdp 'Page.captureScreenshot' @{format='png';captureBeyondViewport=$true}
+ [IO.File]::WriteAllBytes((Join-Path $projectRoot 'tmp/mobile-dark.png'), [Convert]::FromBase64String($shot.data))
+ Write-Output 'PASS: tema oscuro restaurado tras recargar'
 } finally {
  $socket.Dispose()
  if (-not $chrome.HasExited) { Stop-Process -Id $chrome.Id }

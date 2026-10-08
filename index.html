@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Justifica textos y tablas a 75 caracteres. Importa PDF, Word, Excel y CSV en tu navegador.">
   <title>Justificador Vida</title>
+  <script src="public/js/pages/theme.js"></script>
   <link rel="stylesheet" href="public/css/pages.css">
   <link rel="stylesheet" href="public/css/modules/justificador_tablas.css">
   <link rel="stylesheet" href="public/css/modules/justificador_vida.css">
@@ -18,7 +19,7 @@
 </head>
 <body>
 <main class="jv-module">
-  <header class="jv-heading"><div><h1>Justificador Vida</h1><p>Prepara texto y tablas, y combínalos en un documento.</p></div><span class="jv-width">75 caracteres</span></header>
+  <header class="jv-heading"><div><h1>Justificador Vida</h1><p>Prepara texto y tablas, y combínalos en un documento.</p></div><div class="heading-tools"><span class="jv-width">75 caracteres</span><label class="theme-control" for="theme-select">Tema <select id="theme-select"><option value="light">Claro</option><option value="dark">Oscuro</option></select></label></div></header>
   <p class="privacy">Tus archivos se procesan en este navegador y no se suben a un servidor.</p>
   <div class="jv-workspace">
     <div class="jv-editor">
@@ -41,7 +42,6 @@
               <button type="submit" class="btn btn-primary">Justificar Ahora</button>
               <button type="button" class="btn" id="jv-copy-texto" disabled>Copiar texto</button>
               <button type="button" class="btn" id="texto-limpiar">Limpiar</button>
-              <a id="descargar-btn" download="justificado.txt" class="btn u-download-link" style="display:none">Descargar TXT</a>
             </div>
             <span id="jv-text-copy-status" role="status" aria-live="polite"></span>
           </form>
@@ -70,7 +70,7 @@
             <div class="jt-actions"><button type="button" id="jt-generate" class="btn btn-primary" disabled>Generar tabla</button><button type="button" id="jt-example" class="btn">Ver ejemplo de coberturas</button><button type="button" id="jt-clear" class="btn">Limpiar</button></div>
           </section>
           <section class="glass-card jt-card" id="jt-result" hidden>
-            <div class="jt-result-head"><div><h2>Tabla preparada</h2><p id="jt-summary"></p></div><div class="jt-actions"><button type="button" id="jt-copy" class="btn btn-primary">Copiar tabla</button><a id="jt-download" class="btn" download="tabla_75_caracteres.txt">Descargar TXT</a></div></div>
+            <div class="jt-result-head"><div><h2>Tabla preparada</h2><p id="jt-summary"></p></div><div class="jt-actions"><button type="button" id="jt-copy" class="btn btn-primary">Copiar tabla</button></div></div>
             <details class="jv-source-preview"><summary>Ver tabla preparada</summary><div class="jt-preview-wrap"><pre id="jt-preview"></pre></div></details>
           </section>
         </div>
@@ -78,14 +78,13 @@
       </section>
     </div>
     <section class="glass-card jt-card jv-document">
-      <div class="jt-result-head"><div><h2>Documento</h2><p id="jv-summary">Agrega tu primera sección.</p></div><div class="jt-actions"><button type="button" class="btn btn-primary" id="jv-copy" disabled>Copiar</button><a class="btn" id="jv-download" download="justificador_vida.txt" hidden>Descargar TXT</a><button type="button" class="btn" id="jv-clear" disabled>Vaciar</button></div></div>
+      <div class="jt-result-head"><div><h2>Documento</h2><p id="jv-summary">Agrega tu primera sección.</p></div><div class="jt-actions"><button type="button" class="btn btn-primary" id="jv-copy" disabled>Copiar</button><button type="button" class="btn" id="jv-clear" disabled>Vaciar</button></div></div>
       <div id="jv-status" role="status" aria-live="polite"></div>
       <ol id="jv-blocks" class="jv-blocks" aria-label="Secciones del documento"></ol>
       <div class="jt-preview-wrap" id="jv-result" hidden><pre id="jv-preview"></pre></div>
       <p class="jt-help">Al pegar, usa Consolas o Courier New para conservar la alineación.</p>
     </section>
   </div>
-  <footer>Los datos se pierden al cerrar o recargar la página. Descarga tu documento antes de salir. <a href="https://github.com/chachanito/justificador_vida">Ver código fuente</a></footer>
 </main>
 </body>
 </html>

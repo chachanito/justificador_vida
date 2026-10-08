@@ -7,6 +7,13 @@ document.querySelector('iframe').addEventListener('load', async () => {
  function assert(condition, name) { if (!condition) throw new Error(name); passed.push(name); output.textContent='RUNNING\n'+passed.join('\n'); }
  function click(id) { doc.getElementById(id).click(); }
  try {
+   const theme = doc.getElementById('theme-select');
+   theme.value='dark'; theme.dispatchEvent(new win.Event('change'));
+   const darkBackground = win.getComputedStyle(doc.body).backgroundColor;
+   assert(doc.documentElement.dataset.theme==='dark' && win.localStorage.getItem('justificador-vida-theme')==='dark', 'Tema oscuro y preferencia guardada');
+   theme.value='light'; theme.dispatchEvent(new win.Event('change'));
+   assert(doc.documentElement.dataset.theme==='light' && win.getComputedStyle(doc.body).backgroundColor!==darkBackground, 'Cambiar a tema claro');
+   assert(!doc.querySelector('footer,a[download]'), 'Sin aviso de pie ni enlaces de descarga');
    const text = doc.getElementById('texto');
    text.value = 'Este es un párrafo de prueba suficientemente largo para verificar que el justificador distribuye los espacios entre las palabras y conserva los caracteres especiales como la ñ y las tildes.\n\nSegundo párrafo.';
    text.dispatchEvent(new win.Event('input', {bubbles:true}));
@@ -22,8 +29,7 @@ document.querySelector('iframe').addEventListener('load', async () => {
    assert(doc.getElementById('jv-blocks').children.length===2, 'Combinar texto y tabla');
    doc.querySelector('[data-action="up"][data-index="1"]').click();
    assert(doc.getElementById('jv-preview').textContent.startsWith(table), 'Reordenar secciones');
-   const download = await win.fetch(doc.getElementById('jv-download').href).then(r=>r.text());
-   assert(download.includes('Segundo') && download.includes('COBERTURAS'), 'Descargar documento completo');
+   assert(doc.getElementById('jv-preview').textContent.includes('Segundo') && !doc.getElementById('jv-copy').disabled, 'Documento completo listo para copiar');
    async function uploadTable(file) {
      const transfer = new win.DataTransfer(); transfer.items.add(file);
      const input = doc.getElementById('jt-file'); input.files=transfer.files;
@@ -49,7 +55,7 @@ document.querySelector('iframe').addEventListener('load', async () => {
    try { await win.JustificadorDocumento.read(new win.File([new Uint8Array(10*1024*1024+1)], 'grande.pdf')); } catch { rejected=true; }
    assert(rejected, 'Limitar documentos a 10 MB');
    click('jv-clear');
-   assert(doc.getElementById('jv-result').hidden && doc.getElementById('jv-download').hidden, 'Vaciar documento');
+   assert(doc.getElementById('jv-result').hidden && doc.getElementById('jv-copy').disabled, 'Vaciar documento');
    output.textContent = 'PASS\n' + passed.join('\n');
  } catch (error) { output.textContent = 'FAIL\n' + error.stack + '\n' + passed.join('\n'); }
 });

@@ -79,11 +79,11 @@
             el('result').hidden = !blocks.length;
             el('copy').disabled = !blocks.length;
             el('clear').disabled = !blocks.length;
-            el('download').hidden = !blocks.length;
+            if (el('download')) el('download').hidden = !blocks.length;
             if (blobUrl) URL.revokeObjectURL(blobUrl);
             blobUrl = null;
-            el('download').removeAttribute('href');
-            if (blocks.length) {
+            el('download')?.removeAttribute('href');
+            if (blocks.length && el('download')) {
                 blobUrl = URL.createObjectURL(new Blob([text.replace(/\n/g, '\r\n')], {type:'text/plain;charset=utf-8'}));
                 el('download').href = blobUrl;
             }
@@ -139,7 +139,7 @@
                 try { temporary.select(); copied = document.execCommand('copy'); }
                 finally { temporary.remove(); focused?.focus({preventScroll:true}); }
             }
-            if (prepared.texto === text) el('text-copy-status').textContent = copied ? 'Texto justificado copiado.' : 'No se pudo copiar. Puedes descargar el TXT.';
+            if (prepared.texto === text) el('text-copy-status').textContent = copied ? 'Texto justificado copiado.' : 'No se pudo copiar. Selecciona el texto preparado y pulsa Ctrl+C.';
         });
         el('blocks').addEventListener('click', event => {
             const button = event.target.closest('button[data-action]');

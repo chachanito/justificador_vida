@@ -11,8 +11,8 @@
         function reset() {
             section.style.display = 'none';
             preview.textContent = '';
-            download.style.display = 'none';
-            download.removeAttribute('href');
+            if (download) download.style.display = 'none';
+            download?.removeAttribute('href');
             if (blobUrl) URL.revokeObjectURL(blobUrl);
             blobUrl = null;
             document.dispatchEvent(new CustomEvent('justificador:texto', {detail: {text: ''}}));
@@ -24,9 +24,11 @@
             const result = JustificadorTexto.format(input.value);
             preview.textContent = result;
             if (!section.hidden) section.style.display = 'block';
-            blobUrl = URL.createObjectURL(new Blob([result], {type: 'text/plain;charset=utf-8'}));
-            download.href = blobUrl;
-            download.style.display = 'inline-block';
+            if (download) {
+                blobUrl = URL.createObjectURL(new Blob([result], {type: 'text/plain;charset=utf-8'}));
+                download.href = blobUrl;
+                download.style.display = 'inline-block';
+            }
             document.dispatchEvent(new CustomEvent('justificador:texto', {detail: {text: result}}));
             if (!section.hidden) section.scrollIntoView({behavior: 'smooth', block: 'nearest'});
         });

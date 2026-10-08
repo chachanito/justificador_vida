@@ -7,14 +7,16 @@
         let workbook = null, example = null, blobUrl = null, filename = 'tabla';
         let loading = 0;
         function status(message, error=false) { el('status').textContent=message; el('status').dataset.error=String(error); }
-        function resetResult() { el('result').hidden=true; el('preview').textContent=''; if (blobUrl) URL.revokeObjectURL(blobUrl); blobUrl=null; el('download').removeAttribute('href'); document.dispatchEvent(new CustomEvent('justificador:tabla', {detail:{text:''}})); }
+        function resetResult() { el('result').hidden=true; el('preview').textContent=''; if (blobUrl) URL.revokeObjectURL(blobUrl); blobUrl=null; el('download')?.removeAttribute('href'); document.dispatchEvent(new CustomEvent('justificador:tabla', {detail:{text:''}})); }
         function show(result) {
             el('preview').textContent=result.text; el('result').hidden=false;
             el('summary').textContent=`${result.rows} filas · ${result.columns} columnas · ${result.lines} líneas · 75 caracteres por línea`;
             if (blobUrl) URL.revokeObjectURL(blobUrl);
-            blobUrl=URL.createObjectURL(new Blob([result.text.replace(/\n/g,'\r\n')], {type:'text/plain;charset=utf-8'}));
-            el('download').href=blobUrl; el('download').download=filename + '_75_caracteres.txt';
-            status('Tabla generada. Puedes copiarla o descargarla.');
+            if (el('download')) {
+                blobUrl=URL.createObjectURL(new Blob([result.text.replace(/\n/g,'\r\n')], {type:'text/plain;charset=utf-8'}));
+                el('download').href=blobUrl; el('download').download=filename + '_75_caracteres.txt';
+            }
+            status('Tabla generada. Puedes copiarla' + (el('download') ? ' o descargarla.' : '.'));
             document.dispatchEvent(new CustomEvent('justificador:tabla', {detail:{text:result.text}}));
         }
         function extract() {
@@ -80,7 +82,7 @@
                 el('sheet').disabled=false; el('range').disabled=false; el('range').value=''; el('generate').disabled=false;
                 el('example').textContent='Ver tabla del archivo';
                 generate();
-                if (!el('result').hidden) status('Archivo listo. Tabla generada con los datos de ' + file.name + '. Puedes copiarla o descargarla.');
+                if (!el('result').hidden) status('Archivo listo. Tabla generada con los datos de ' + file.name + '. Puedes copiarla' + (el('download') ? ' o descargarla.' : '.'));
             } catch (error) { if (version!==loading) return; workbook=null; status('No se pudo leer el archivo: '+error.message,true); }
             finally { if (version===loading) el('example').disabled=false; }
         });

@@ -4,15 +4,15 @@
 
 Usar: https://chachanito.github.io/justificador_vida/
 
-`index.html` es una aplicacion independiente, sin cuentas ni dependencias del ERP. Permite justificar texto, importar PDF con texto y Word .docx, procesar Excel/CSV, ordenar secciones, copiar y descargar TXT. Todos los documentos se procesan en el navegador. Los lectores PDF.js, Mammoth y SheetJS estan incluidos localmente.
+`index.html` es una aplicacion independiente, sin cuentas ni dependencias del ERP. Permite justificar texto, importar PDF con texto y Word .docx, procesar Excel/CSV, ordenar secciones y copiar. Incluye temas claro y oscuro; la eleccion se guarda localmente y inicialmente sigue el tema del sistema. La interfaz publica no contiene enlaces de descarga ni enlaces al codigo fuente. Todos los documentos se procesan en el navegador. Los lectores PDF.js, Mammoth y SheetJS estan incluidos localmente.
 
-Los archivos admiten hasta 10 MB; los PDF hasta 300 paginas. No hay OCR para PDF escaneado ni se conserva la maquetacion original de PDF/Word. Revisar siempre el texto extraido. Los cambios no se guardan al recargar o cerrar: descargar el TXT antes de salir. Se necesita un navegador moderno con soporte de modulos y workers.
+Los archivos admiten hasta 10 MB; los PDF hasta 300 paginas. No hay OCR para PDF escaneado ni se conserva la maquetacion original de PDF/Word. Revisar siempre el texto extraido. Los documentos no se guardan al recargar o cerrar; copiar el resultado para conservarlo. Se necesita un navegador moderno con soporte de modulos y workers.
 
 Para probar localmente: desde esta carpeta ejecutar `php -S localhost:8080` y abrir `http://localhost:8080/`. No abrir el HTML con `file://`, porque los lectores usan modulos y workers.
 
 El flujo `.github/workflows/pages.yml` publica automaticamente al subir a `main`. Configurar Settings > Pages > Source como **GitHub Actions**. El artefacto incluye unicamente `index.html`, `public/js` y `public/css`; no publica endpoints PHP ni pruebas.
 
-Pruebas de navegador: generar el DOCX de prueba con `powershell -File tests/create-fixture.ps1` y abrir `/tests/browser.html` en el servidor local. Debe mostrar PASS para texto, tablas, secciones, descarga e importacion PDF/DOCX.
+Pruebas de navegador: generar el DOCX de prueba con `powershell -File tests/create-fixture.ps1` y abrir `/tests/browser.html` en el servidor local. Debe mostrar PASS para temas, texto, tablas, secciones e importacion PDF/DOCX.
 
 En Windows con Chrome instalado, `tests/run-browser.ps1` ejecuta las pruebas y verifica el ancho movil usando el servidor local en el puerto 8087. El parametro `-SiteUrl https://chachanito.github.io/justificador_vida/` repite las pruebas sobre la aplicacion publicada con documentos sinteticos. Las capturas quedan en `tmp/`, fuera de Git.
 
