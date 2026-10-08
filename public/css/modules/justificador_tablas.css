@@ -1,0 +1,18 @@
+.jt-module { display:flex; flex-direction:column; gap:18px; }
+.jt-card { padding:24px; }
+.jt-card h1,.jt-card h2 { margin:0 0 12px; }
+.jt-kicker { display:block; color:#0f766e; font-weight:700; margin-bottom:8px; }
+.jt-help { color:#64748b; line-height:1.6; margin:12px 0; }
+.jt-fields { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:18px 0; }
+.jt-fields label,.jt-card>label { display:block; margin-bottom:8px; font-weight:600; }
+.jt-fields input,.jt-fields select { width:100%; box-sizing:border-box; }
+.jt-fields select { padding:12px; border:1px solid #cbd5e1; border-radius:8px; background:transparent; color:inherit; }
+.jt-options,.jt-actions { display:flex; flex-wrap:wrap; gap:16px; margin-top:16px; }
+.jt-result-head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+.jt-preview-wrap { overflow-x:auto; margin-top:18px; border-radius:10px; background:#0b1220; }
+#jt-preview { font-family:Consolas,'Courier New',monospace; font-size:14px; line-height:1.6; color:#e2e8f0; padding:20px; margin:0; white-space:pre; font-variant-ligatures:none; }
+#jt-status:empty { display:none; }
+#jt-status { padding:14px; border-radius:10px; background:#e0f2fe; color:#0c4a6e; }
+#jt-status[data-error='true'] { background:#fee2e2; color:#991b1b; }
+.theme-dark .jt-help { color:#cbd5e1; }
+@media(max-width:700px) { .jt-fields { grid-template-columns:1fr; } .jt-card { padding:18px; } }
