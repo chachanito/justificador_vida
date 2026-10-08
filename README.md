@@ -1,5 +1,21 @@
 # Justificador Vida
 
+## Aplicacion publica para GitHub Pages
+
+Usar: https://chachanito.github.io/justificador_vida/
+
+`index.html` es una aplicacion independiente, sin cuentas ni dependencias del ERP. Permite justificar texto, importar PDF con texto y Word .docx, procesar Excel/CSV, ordenar secciones, copiar y descargar TXT. Todos los documentos se procesan en el navegador. Los lectores PDF.js, Mammoth y SheetJS estan incluidos localmente.
+
+Los archivos admiten hasta 10 MB; los PDF hasta 300 paginas. No hay OCR para PDF escaneado ni se conserva la maquetacion original de PDF/Word. Revisar siempre el texto extraido. Los cambios no se guardan al recargar o cerrar: descargar el TXT antes de salir. Se necesita un navegador moderno con soporte de modulos y workers.
+
+Para probar localmente: desde esta carpeta ejecutar `php -S localhost:8080` y abrir `http://localhost:8080/`. No abrir el HTML con `file://`, porque los lectores usan modulos y workers.
+
+El flujo `.github/workflows/pages.yml` publica automaticamente al subir a `main`. Configurar Settings > Pages > Source como **GitHub Actions**. El artefacto incluye unicamente `index.html`, `public/js` y `public/css`; no publica endpoints PHP ni pruebas.
+
+Pruebas de navegador: generar el DOCX de prueba con `powershell -File tests/create-fixture.ps1` y abrir `/tests/browser.html` en el servidor local. Debe mostrar PASS para texto, tablas, secciones, descarga e importacion PDF/DOCX.
+
+Los archivos PHP originales siguen disponibles para integracion en un ERP, como se describe a continuacion. `MANIFIESTO.json` corresponde a la exportacion original, no a las modificaciones de la version web.
+
 Paquete del modulo PHP Justificador Vida y sus motores compartidos de texto y tablas. Incluye el estado actual del modulo: texto de 75 caracteres, tablas Excel/CSV, numeracion de hasta cuatro caracteres en modo Listado, importacion PDF/DOCX, copia, descarga TXT y documento compuesto por secciones reordenables. Conserva los espacios entre parrafos y secciones.
 
 ## Alcance

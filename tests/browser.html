@@ -1,0 +1,56 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>Pruebas del navegador</title>
+<pre id="results">RUNNING</pre><iframe src="../index.html" title="Aplicación en prueba" style="width:1200px;height:900px"></iframe>
+<script>
+document.querySelector('iframe').addEventListener('load', async () => {
+ const output = document.getElementById('results'), win = document.querySelector('iframe').contentWindow, doc = win.document;
+ const passed = [];
+ function assert(condition, name) { if (!condition) throw new Error(name); passed.push(name); output.textContent='RUNNING\n'+passed.join('\n'); }
+ function click(id) { doc.getElementById(id).click(); }
+ try {
+   const text = doc.getElementById('texto');
+   text.value = 'Este es un párrafo de prueba suficientemente largo para verificar que el justificador distribuye los espacios entre las palabras y conserva los caracteres especiales como la ñ y las tildes.\n\nSegundo párrafo.';
+   text.dispatchEvent(new win.Event('input', {bubbles:true}));
+   doc.getElementById('justificar-form').dispatchEvent(new win.Event('submit', {bubbles:true,cancelable:true}));
+   assert(doc.getElementById('texto-justificado').textContent.includes('Segundo'), 'Justificar texto con párrafos');
+   assert(!doc.getElementById('jv-add-texto').disabled, 'Habilitar texto preparado');
+   click('jv-add-texto');
+   assert(doc.getElementById('jv-blocks').children.length===1, 'Agregar sección de texto');
+   click('jv-tab-tabla'); click('jt-example');
+   const table = doc.getElementById('jt-preview').textContent;
+   assert(table.length>0 && table.split('\n').every(line=>Array.from(line).length===75), 'Tabla de 75 caracteres');
+   click('jv-add-tabla');
+   assert(doc.getElementById('jv-blocks').children.length===2, 'Combinar texto y tabla');
+   doc.querySelector('[data-action="up"][data-index="1"]').click();
+   assert(doc.getElementById('jv-preview').textContent.startsWith(table), 'Reordenar secciones');
+   const download = await win.fetch(doc.getElementById('jv-download').href).then(r=>r.text());
+   assert(download.includes('Segundo') && download.includes('COBERTURAS'), 'Descargar documento completo');
+   async function uploadTable(file) {
+     const transfer = new win.DataTransfer(); transfer.items.add(file);
+     const input = doc.getElementById('jt-file'); input.files=transfer.files;
+     input.dispatchEvent(new win.Event('change', {bubbles:true}));
+     for (let attempt=0; attempt<100 && doc.getElementById('jt-result').hidden; attempt++) await new Promise(resolve=>setTimeout(resolve,50));
+   }
+   await uploadTable(new win.File(['Concepto,Valor\nPrueba CSV,123\n'], 'tabla.csv'));
+   assert(doc.getElementById('jt-preview').textContent.includes('Prueba CSV'), 'Importar CSV real');
+   const workbook = win.XLSX.utils.book_new();
+   win.XLSX.utils.book_append_sheet(workbook, win.XLSX.utils.aoa_to_sheet([['Concepto','Valor'],['Prueba Excel',456]]), 'Hoja de prueba');
+   await uploadTable(new win.File([win.XLSX.write(workbook,{bookType:'xlsx',type:'array'})], 'tabla.xlsx'));
+   assert(doc.getElementById('jt-preview').textContent.includes('Prueba Excel'), 'Importar XLSX real');
+   const data = await win.fetch('tests/sample.docx').then(r=>r.arrayBuffer());
+   const word = await win.JustificadorDocumento.read(new win.File([data], 'prueba.docx'));
+   assert(word.texto.includes('Documento Word de prueba'), 'Importar DOCX real');
+   const pdf = '%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n5 0 obj\n<< /Length 66 >>\nstream\nBT /F1 12 Tf 72 720 Td (Documento PDF de prueba) Tj ET\nendstream\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF';
+   const result = await win.JustificadorDocumento.read(new win.File([pdf], 'prueba.pdf'));
+   assert(result.texto.includes('Documento PDF de prueba'), 'Importar PDF real con worker');
+   let rejected = false;
+   try { await win.JustificadorDocumento.read(new win.File(['x'], 'prueba.doc')); } catch { rejected=true; }
+   assert(rejected, 'Rechazar formato no permitido');
+   rejected=false;
+   try { await win.JustificadorDocumento.read(new win.File([new Uint8Array(10*1024*1024+1)], 'grande.pdf')); } catch { rejected=true; }
+   assert(rejected, 'Limitar documentos a 10 MB');
+   click('jv-clear');
+   assert(doc.getElementById('jv-result').hidden && doc.getElementById('jv-download').hidden, 'Vaciar documento');
+   output.textContent = 'PASS\n' + passed.join('\n');
+ } catch (error) { output.textContent = 'FAIL\n' + error.stack + '\n' + passed.join('\n'); }
+});
+</script></html>

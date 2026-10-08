@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Justifica textos y tablas a 75 caracteres. Importa PDF, Word, Excel y CSV en tu navegador.">
+  <title>Justificador Vida</title>
+  <link rel="stylesheet" href="public/css/pages.css">
+  <link rel="stylesheet" href="public/css/modules/justificador_tablas.css">
+  <link rel="stylesheet" href="public/css/modules/justificador_vida.css">
+  <script src="public/js/justificador_texto_core.js" defer></script>
+  <script src="public/js/vendor/xlsx-0.20.3.full.min.js" defer></script>
+  <script src="public/js/justificador_tablas_core.js" defer></script>
+  <script src="public/js/pages/document-reader.js" defer></script>
+  <script src="public/js/modules/herramientas_justificar.js" defer></script>
+  <script src="public/js/modules/justificador_tablas.js" defer></script>
+  <script src="public/js/modules/justificador_vida.js" defer></script>
+</head>
+<body>
+<main class="jv-module">
+  <header class="jv-heading"><div><h1>Justificador Vida</h1><p>Prepara texto y tablas, y combínalos en un documento.</p></div><span class="jv-width">75 caracteres</span></header>
+  <p class="privacy">Tus archivos se procesan en este navegador y no se suben a un servidor.</p>
+  <div class="jv-workspace">
+    <div class="jv-editor">
+      <div class="jv-tabs" role="tablist" aria-label="Tipo de contenido">
+        <button type="button" class="btn btn-primary" id="jv-tab-texto" role="tab" aria-selected="true" aria-controls="jv-panel-texto" data-jv-tab="texto">Texto</button>
+        <button type="button" class="btn" id="jv-tab-tabla" role="tab" aria-selected="false" aria-controls="jv-panel-tabla" data-jv-tab="tabla" tabindex="-1">Tablas</button>
+      </div>
+      <section id="jv-panel-texto" role="tabpanel" aria-labelledby="jv-tab-texto">
+        <div class="upload-card">
+          <form id="justificar-form" class="upload-form">
+            <div class="jv-file-field">
+              <label for="jv-text-file">Importar PDF o Word</label>
+              <input type="file" id="jv-text-file" accept=".pdf,.docx">
+              <small>Máximo 10 MB. PDF con texto o Word .docx. No incluye OCR ni conserva el diseño original.</small>
+              <span id="jv-import-status" role="status" aria-live="polite"></span>
+            </div>
+            <label for="texto" class="u-justify-label">Texto</label>
+            <textarea id="texto" name="texto" required class="u-justify-textarea" placeholder="Pega tus párrafos o viñetas aquí…"></textarea>
+            <div class="button-group u-justify-buttons">
+              <button type="submit" class="btn btn-primary">Justificar Ahora</button>
+              <button type="button" class="btn" id="jv-copy-texto" disabled>Copiar texto</button>
+              <button type="button" class="btn" id="texto-limpiar">Limpiar</button>
+              <a id="descargar-btn" download="justificado.txt" class="btn u-download-link" style="display:none">Descargar TXT</a>
+            </div>
+            <span id="jv-text-copy-status" role="status" aria-live="polite"></span>
+          </form>
+          <div id="resultado-seccion" class="u-result-wrap" style="display:none"><h2>Texto preparado</h2><pre id="texto-justificado" class="u-result-pre"></pre></div>
+        </div>
+        <div class="jv-add"><button type="button" class="btn btn-primary" id="jv-add-texto" disabled>Agregar texto al documento</button></div>
+      </section>
+      <section id="jv-panel-tabla" role="tabpanel" aria-labelledby="jv-tab-tabla" hidden>
+        <div class="jt-module">
+          <div id="jt-status" role="status" aria-live="polite"></div>
+          <section class="glass-card jt-card">
+            <h2>Archivo y opciones</h2><label for="jt-file">Archivo Excel o CSV</label><input type="file" id="jt-file" accept=".xlsx,.xls,.csv">
+            <p class="jt-help">Máximo 10 MB · 8 columnas · 3000 filas</p>
+            <div class="jt-fields">
+              <div><label for="jt-sheet">Hoja</label><select id="jt-sheet" disabled><option>Selecciona un archivo</option></select></div>
+              <div><label for="jt-range">Rango (opcional)</label><input id="jt-range" placeholder="Ejemplo: A1:D20" disabled></div>
+            </div>
+            <div class="jt-options">
+              <label><input type="checkbox" id="jt-list"> Listado</label>
+              <label><input type="checkbox" id="jt-header" checked> Primera fila como encabezado</label>
+              <label><input type="checkbox" id="jt-bullets" checked> Viñetas en la primera columna</label>
+              <label><input type="checkbox" id="jt-justify" checked> Justificar descripciones largas</label>
+              <label><input type="checkbox" id="jt-lines"> Separar cada fila con una línea</label>
+            </div>
+            <p class="jt-help">Listado: columna # o N° de hasta 4 caracteres.</p>
+            <div class="jt-actions"><button type="button" id="jt-generate" class="btn btn-primary" disabled>Generar tabla</button><button type="button" id="jt-example" class="btn">Ver ejemplo de coberturas</button><button type="button" id="jt-clear" class="btn">Limpiar</button></div>
+          </section>
+          <section class="glass-card jt-card" id="jt-result" hidden>
+            <div class="jt-result-head"><div><h2>Tabla preparada</h2><p id="jt-summary"></p></div><div class="jt-actions"><button type="button" id="jt-copy" class="btn btn-primary">Copiar tabla</button><a id="jt-download" class="btn" download="tabla_75_caracteres.txt">Descargar TXT</a></div></div>
+            <details class="jv-source-preview"><summary>Ver tabla preparada</summary><div class="jt-preview-wrap"><pre id="jt-preview"></pre></div></details>
+          </section>
+        </div>
+        <div class="jv-add"><button type="button" class="btn btn-primary" id="jv-add-tabla" disabled>Agregar tabla al documento</button></div>
+      </section>
+    </div>
+    <section class="glass-card jt-card jv-document">
+      <div class="jt-result-head"><div><h2>Documento</h2><p id="jv-summary">Agrega tu primera sección.</p></div><div class="jt-actions"><button type="button" class="btn btn-primary" id="jv-copy" disabled>Copiar</button><a class="btn" id="jv-download" download="justificador_vida.txt" hidden>Descargar TXT</a><button type="button" class="btn" id="jv-clear" disabled>Vaciar</button></div></div>
+      <div id="jv-status" role="status" aria-live="polite"></div>
+      <ol id="jv-blocks" class="jv-blocks" aria-label="Secciones del documento"></ol>
+      <div class="jt-preview-wrap" id="jv-result" hidden><pre id="jv-preview"></pre></div>
+      <p class="jt-help">Al pegar, usa Consolas o Courier New para conservar la alineación.</p>
+    </section>
+  </div>
+  <footer>Los datos se pierden al cerrar o recargar la página. Descarga tu documento antes de salir. <a href="https://github.com/chachanito/justificador_vida">Ver código fuente</a></footer>
+</main>
+</body>
+</html>

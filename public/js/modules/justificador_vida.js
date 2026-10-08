@@ -22,12 +22,18 @@
                 if (file.size>10*1024*1024) throw new Error('El archivo supera los 10 MB.');
                 textInput.disabled=true; submit.disabled=true; clear.disabled=true; el('add-texto').disabled=true; el('copy-texto').disabled=true;
                 importedStatus('Leyendo documento…');
-                const data=new FormData(); data.set('archivo',file); data.set('csrf_token',textForm.elements.csrf_token.value);
                 importRequest=new AbortController();
-                const response=await fetch('erp/justificador_documento.php',{method:'POST',body:data,signal:importRequest.signal});
-                const result=await response.json();
+                let result;
+                if (globalThis.JustificadorDocumento) {
+                    result = await JustificadorDocumento.read(file, importRequest.signal);
+                } else {
+                    const data=new FormData(); data.set('archivo',file); data.set('csrf_token',textForm.elements.csrf_token.value);
+                    const response=await fetch('erp/justificador_documento.php',{method:'POST',body:data,signal:importRequest.signal});
+                    result=await response.json();
+                    if (!response.ok) throw new Error(result.error || 'No se pudo leer el documento.');
+                }
                 if (version!==importVersion) return;
-                if (!response.ok || !result.ok) throw new Error(result.error || 'No se pudo leer el documento.');
+                if (!result.ok) throw new Error(result.error || 'No se pudo leer el documento.');
                 textInput.value=result.texto;
                 textInput.dispatchEvent(new Event('input', {bubbles:true}));
                 importedStatus(`Texto cargado. Revísalo y pulsa Justificar Ahora.${result.aviso ? ' '+result.aviso : ''}`);
